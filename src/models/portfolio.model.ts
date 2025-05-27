@@ -35,10 +35,12 @@ const portfolioSchema = new Schema<IPortfolio>(
       type: String,
       required: [true, 'Please provide a completion date'],
     },
-    technologies: [{
-      type: String,
-      required: [true, 'Please provide at least one technology'],
-    }],
+    technologies: [
+      {
+        type: String,
+        required: [true, 'Please provide at least one technology'],
+      },
+    ],
     description: {
       type: String,
       required: [true, 'Please provide a description'],
@@ -51,10 +53,12 @@ const portfolioSchema = new Schema<IPortfolio>(
       type: String,
       required: [true, 'Please provide a solution description'],
     },
-    imageUrls: [{
-      type: String,
-      required: [true, 'Please provide at least one image URL'],
-    }],
+    imageUrls: [
+      {
+        type: String,
+        required: [true, 'Please provide at least one image URL'],
+      },
+    ],
     liveUrl: {
       type: String,
       trim: true,
@@ -72,4 +76,4 @@ const portfolioSchema = new Schema<IPortfolio>(
 // Index for better search performance
 portfolioSchema.index({ title: 'text', category: 'text', client: 'text' });
 
-export const Portfolio = mongoose.model<IPortfolio>('Portfolio', portfolioSchema); 
+export const Portfolio = mongoose.model<IPortfolio>('Portfolio', portfolioSchema);

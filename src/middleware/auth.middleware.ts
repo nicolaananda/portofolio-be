@@ -6,26 +6,18 @@ interface JwtPayload {
   id: string;
 }
 
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
+// Extend Express Request type
+declare module 'express' {
+  interface Request {
+    user?: JwtPayload;
   }
 }
 
-export const protect = async (
-  req: Request,
-  _res: Response,
-  next: NextFunction,
-) => {
+export const protect = async (req: Request, _res: Response, next: NextFunction) => {
   try {
     // 1) Getting token and check if it exists
     let token;
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith('Bearer')
-    ) {
+    if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
     }
 
@@ -42,4 +34,4 @@ export const protect = async (
   } catch (error) {
     next(new AppError('Invalid token. Please log in again!', 401));
   }
-}; 
+};

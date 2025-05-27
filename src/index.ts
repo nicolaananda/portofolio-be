@@ -8,6 +8,7 @@ import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/auth.routes';
 import portfolioRoutes from './routes/portfolio.routes';
+import contactRoutes from './routes/contact.routes';
 
 // Load environment variables
 config();
@@ -16,7 +17,10 @@ const app = express();
 
 // Middleware
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+  origin: 'https://nicola.id',
+  credentials: true,
+}));
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(rateLimiter);
@@ -24,6 +28,7 @@ app.use(rateLimiter);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/portfolio', portfolioRoutes);
+app.use('/api/contact', contactRoutes);
 
 // Error handling
 app.use(errorHandler);
@@ -41,4 +46,4 @@ mongoose
   .catch((error) => {
     console.error('MongoDB connection error:', error);
     process.exit(1);
-  }); 
+  });

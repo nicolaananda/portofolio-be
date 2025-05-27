@@ -34,4 +34,4 @@ export const errorHandler = (
     status: 'error',
     message: 'Something went wrong!',
   });
-}; 
+};

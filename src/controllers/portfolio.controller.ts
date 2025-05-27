@@ -2,12 +2,16 @@ import { Request, Response, NextFunction } from 'express';
 import { Portfolio } from '../models/portfolio.model';
 import { AppError } from '../middleware/errorHandler';
 
+interface PortfolioQuery {
+  category?: string;
+  client?: string;
+  technologies?: string;
+  page?: string;
+  limit?: string;
+}
+
 // Create new portfolio item
-export const createPortfolio = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const createPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const portfolio = await Portfolio.create(req.body);
     res.status(201).json({
@@ -21,7 +25,7 @@ export const createPortfolio = async (
 
 // Get all portfolio items with pagination and filtering
 export const getAllPortfolios = async (
-  req: Request,
+  req: Request<unknown, unknown, unknown, PortfolioQuery>,
   res: Response,
   next: NextFunction,
 ) => {
@@ -30,17 +34,14 @@ export const getAllPortfolios = async (
     const limit = parseInt(req.query.limit as string) || 10;
     const skip = (page - 1) * limit;
 
-    const query: any = {};
+    const query: Record<string, unknown> = {};
     if (req.query.category) query.category = req.query.category;
     if (req.query.client) query.client = req.query.client;
     if (req.query.technologies) {
       query.technologies = { $in: (req.query.technologies as string).split(',') };
     }
 
-    const portfolios = await Portfolio.find(query)
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    const portfolios = await Portfolio.find(query).skip(skip).limit(limit).sort({ createdAt: -1 });
 
     const total = await Portfolio.countDocuments(query);
 
@@ -58,11 +59,7 @@ export const getAllPortfolios = async (
 };
 
 // Get single portfolio item
-export const getPortfolio = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const getPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const portfolio = await Portfolio.findById(req.params.id);
     if (!portfolio) {
@@ -79,20 +76,12 @@ export const getPortfolio = async (
 };
 
 // Update portfolio item
-export const updatePortfolio = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const updatePortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const portfolio = await Portfolio.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      },
-    );
+    const portfolio = await Portfolio.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!portfolio) {
       return next(new AppError('No portfolio found with that ID', 404));
@@ -108,11 +97,7 @@ export const updatePortfolio = async (
 };
 
 // Delete portfolio item
-export const deletePortfolio = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const deletePortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const portfolio = await Portfolio.findByIdAndDelete(req.params.id);
 
@@ -127,4 +112,4 @@ export const deletePortfolio = async (
   } catch (error) {
     next(error);
   }
-}; 
+};

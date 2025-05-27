@@ -14,11 +14,7 @@ const getDeviceInfo = (req: Request) => ({
 // Password validation regex
 const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
-export const register = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
@@ -32,8 +28,8 @@ export const register = async (
       return next(
         new AppError(
           'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number and one special character',
-          400
-        )
+          400,
+        ),
       );
     }
 
@@ -78,11 +74,7 @@ export const register = async (
   }
 };
 
-export const login = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
@@ -101,10 +93,7 @@ export const login = async (
     // Check if account is locked
     if (user.isLocked && user.lockUntil && user.lockUntil > new Date()) {
       return next(
-        new AppError(
-          `Account is locked. Try again after ${user.lockUntil.toLocaleString()}`,
-          401
-        )
+        new AppError(`Account is locked. Try again after ${user.lockUntil.toLocaleString()}`, 401),
       );
     }
 
@@ -147,20 +136,13 @@ export const login = async (
   }
 };
 
-export const logout = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 
     if (refreshToken) {
       // Invalidate refresh token
-      await Token.findOneAndUpdate(
-        { refreshToken },
-        { isValid: false }
-      );
+      await Token.findOneAndUpdate({ refreshToken }, { isValid: false });
     }
 
     // Clear refresh token cookie
@@ -179,11 +161,7 @@ export const logout = async (
   }
 };
 
-export const refreshToken = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const refreshToken = req.cookies.refreshToken;
 
@@ -192,10 +170,9 @@ export const refreshToken = async (
     }
 
     // Verify refresh token
-    const decoded = jwt.verify(
-      refreshToken,
-      process.env.JWT_REFRESH_SECRET || 'secret-key'
-    ) as { id: string };
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'secret-key') as {
+      id: string;
+    };
 
     // Check if token exists and is valid
     const tokenDoc = await Token.findOne({
@@ -239,11 +216,7 @@ export const refreshToken = async (
   }
 };
 
-export const forgotPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email } = req.body;
 
@@ -267,18 +240,11 @@ export const forgotPassword = async (
   }
 };
 
-export const resetPassword = async (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { token, password } = req.body;
 
-    const hashedToken = crypto
-      .createHash('sha256')
-      .update(token)
-      .digest('hex');
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
 
     const user = await User.findOne({
       passwordResetToken: hashedToken,
@@ -295,10 +261,7 @@ export const resetPassword = async (
     await user.save();
 
     // Invalidate all refresh tokens
-    await Token.updateMany(
-      { userId: user._id },
-      { isValid: false }
-    );
+    await Token.updateMany({ userId: user._id }, { isValid: false });
 
     res.status(200).json({
       status: 'success',
@@ -307,4 +270,4 @@ export const resetPassword = async (
   } catch (error) {
     next(error);
   }
-}; 
+};

@@ -20,4 +20,4 @@ router.post('/', createPortfolio);
 router.patch('/:id', updatePortfolio);
 router.delete('/:id', deletePortfolio);
 
-export default router; 
+export default router;

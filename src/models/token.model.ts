@@ -50,4 +50,4 @@ const tokenSchema = new Schema<IToken>(
 tokenSchema.index({ userId: 1, refreshToken: 1 });
 tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 }); // TTL index
 
-export const Token = mongoose.model<IToken>('Token', tokenSchema); 
+export const Token = mongoose.model<IToken>('Token', tokenSchema);
