@@ -172,6 +172,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || 'secret-key') as {
       id: string;
+      iat: number;
     };
 
     // Check if token exists and is valid
@@ -179,16 +180,22 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
       refreshToken,
       isValid: true,
       userId: decoded.id,
+      expiresAt: { $gt: new Date() }
     });
 
     if (!tokenDoc) {
-      return next(new AppError('Invalid refresh token', 401));
+      return next(new AppError('Invalid or expired refresh token', 401));
     }
 
     // Get user
     const user = await User.findById(decoded.id);
     if (!user) {
       return next(new AppError('User no longer exists', 401));
+    }
+
+    // Check if password was changed after token was issued
+    if (user.isPasswordChangedAfter(decoded.iat)) {
+      return next(new AppError('User recently changed password! Please log in again.', 401));
     }
 
     // Generate new tokens
@@ -212,6 +219,12 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
       accessToken,
     });
   } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return next(new AppError('Refresh token has expired. Please log in again.', 401));
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return next(new AppError('Invalid refresh token. Please log in again.', 401));
+    }
     next(error);
   }
 };

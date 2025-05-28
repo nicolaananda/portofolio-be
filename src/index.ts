@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { config } from 'dotenv';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middleware/errorHandler';
 import { rateLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/auth.routes';
@@ -16,12 +17,25 @@ config();
 const app = express();
 
 // Middleware
-app.use(helmet());
-app.use(cors({
-  origin: ['https://nicola.id', /^http:\/\/localhost:\d+$/],
-  credentials: true,
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "same-origin" },
+  crossOriginEmbedderPolicy: { policy: "require-corp" }
 }));
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://nicola.id'] 
+    : ['http://localhost:8080', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'https://nicola.id'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400 // 24 hours
+}));
+
 app.use(express.json());
+app.use(cookieParser());
 app.use(morgan('dev'));
 app.use(rateLimiter);
 
