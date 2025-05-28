@@ -18,7 +18,7 @@ const app = express();
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: 'https://nicola.id',
+  origin: ['https://nicola.id', /^http:\/\/localhost:\d+$/],
   credentials: true,
 }));
 app.use(express.json());
