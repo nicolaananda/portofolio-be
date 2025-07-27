@@ -9,6 +9,7 @@ const cors_1 = __importDefault(require("cors"));
 const helmet_1 = __importDefault(require("helmet"));
 const morgan_1 = __importDefault(require("morgan"));
 const dotenv_1 = require("dotenv");
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const errorHandler_1 = require("./middleware/errorHandler");
 const rateLimiter_1 = require("./middleware/rateLimiter");
 const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
@@ -16,12 +17,23 @@ const portfolio_routes_1 = __importDefault(require("./routes/portfolio.routes"))
 const contact_routes_1 = __importDefault(require("./routes/contact.routes"));
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
-app.use((0, helmet_1.default)());
+app.use((0, helmet_1.default)({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginOpenerPolicy: { policy: "same-origin" },
+    crossOriginEmbedderPolicy: { policy: "require-corp" }
+}));
 app.use((0, cors_1.default)({
-    origin: 'https://nicola.id',
+    origin: process.env.NODE_ENV === 'production'
+        ? ['https://nicola.id']
+        : ['http://localhost:8080', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'https://nicola.id'],
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    exposedHeaders: ['Set-Cookie'],
+    maxAge: 86400
 }));
 app.use(express_1.default.json());
+app.use((0, cookie_parser_1.default)());
 app.use((0, morgan_1.default)('dev'));
 app.use(rateLimiter_1.rateLimiter);
 app.use('/api/auth', auth_routes_1.default);

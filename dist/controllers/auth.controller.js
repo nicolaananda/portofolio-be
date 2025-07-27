@@ -128,13 +128,17 @@ const refreshToken = async (req, res, next) => {
             refreshToken,
             isValid: true,
             userId: decoded.id,
+            expiresAt: { $gt: new Date() }
         });
         if (!tokenDoc) {
-            return next(new errorHandler_1.AppError('Invalid refresh token', 401));
+            return next(new errorHandler_1.AppError('Invalid or expired refresh token', 401));
         }
         const user = await user_model_1.User.findById(decoded.id);
         if (!user) {
             return next(new errorHandler_1.AppError('User no longer exists', 401));
+        }
+        if (user.isPasswordChangedAfter(decoded.iat)) {
+            return next(new errorHandler_1.AppError('User recently changed password! Please log in again.', 401));
         }
         const { accessToken, refreshToken: newRefreshToken } = user.generateAuthToken();
         tokenDoc.refreshToken = newRefreshToken;
@@ -152,6 +156,12 @@ const refreshToken = async (req, res, next) => {
         });
     }
     catch (error) {
+        if (error instanceof jsonwebtoken_1.default.TokenExpiredError) {
+            return next(new errorHandler_1.AppError('Refresh token has expired. Please log in again.', 401));
+        }
+        if (error instanceof jsonwebtoken_1.default.JsonWebTokenError) {
+            return next(new errorHandler_1.AppError('Invalid refresh token. Please log in again.', 401));
+        }
         next(error);
     }
 };
