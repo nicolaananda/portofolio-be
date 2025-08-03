@@ -16,8 +16,6 @@ coverage
 *.swp
 *.swo
 *~
-src/
-tsconfig.json
 .eslintrc.json
 .prettierrc
 jest.config.js

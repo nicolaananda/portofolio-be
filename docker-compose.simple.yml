@@ -7,10 +7,10 @@ services:
     container_name: portfolio-backend
     restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "5000:5002"
     environment:
       - NODE_ENV=production
-      - PORT=5000
+      - PORT=5002
       - MONGODB_URI=mongodb://mongodb:27017/portfolio
       - JWT_SECRET=${JWT_SECRET}
       - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}

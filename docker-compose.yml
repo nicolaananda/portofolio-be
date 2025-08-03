@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  # Backend Application (Express + TypeScript)
+  # Backend Application
   backend:
     build: .
     container_name: portfolio-backend
@@ -10,84 +10,15 @@ services:
       - "5002:5002"
     environment:
       - NODE_ENV=production
+      - MONGODB_URI=mongodb+srv://nicolaananda:Kotakediri1@personal.2rijaws.mongodb.net/?retryWrites=true&w=majority&appName=Personal
       - PORT=5002
-      - MONGODB_URI=${MONGODB_URI}
-      - JWT_SECRET=${JWT_SECRET}
-      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
-      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-15m}
-      - JWT_REFRESH_EXPIRES_IN=${JWT_REFRESH_EXPIRES_IN:-7d}
-    networks:
-      - portfolio-network
+      - JWT_SECRET=secret-key
+      - JWT_REFRESH_SECRET=secret-key
     volumes:
       - ./logs:/app/logs
-    healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5002/api/portfolio', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # Nginx Reverse Proxy
-  nginx:
-    image: nginx:alpine
-    container_name: portfolio-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - ./logs/nginx:/var/log/nginx
-      - certbot_web:/var/www/certbot:ro
-    depends_on:
-      backend:
-        condition: service_healthy
     networks:
       - portfolio-network
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Certbot for SSL certificates
-  certbot:
-    image: certbot/certbot
-    container_name: portfolio-certbot
-    restart: "no"
-    volumes:
-      - ./ssl:/etc/letsencrypt
-      - certbot_web:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
-
-  # Redis for caching (Optional)
-  redis:
-    image: redis:7-alpine
-    container_name: portfolio-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes
-    volumes:
-      - redis_data:/data
-    networks:
-      - portfolio-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-    profiles:
-      - cache
-
-volumes:
-  redis_data:
-    driver: local
-  certbot_web:
-    driver: local
 
 networks:
   portfolio-network:
     driver: bridge
-    ipam:
-      config:
-        - subnet: 172.20.0.0/16
