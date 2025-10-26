@@ -23,16 +23,19 @@ exports.upload = (0, multer_1.default)({
         }
     },
 });
-const s3Client = new client_s3_1.S3Client({
-    region: 'auto',
-    endpoint: process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-    credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
-    },
-    forcePathStyle: true,
-});
+const getS3Client = () => {
+    return new client_s3_1.S3Client({
+        region: 'auto',
+        endpoint: process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+        credentials: {
+            accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+            secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+        },
+        forcePathStyle: true,
+    });
+};
 const uploadToR2 = async (file, filename) => {
+    const s3Client = getS3Client();
     const command = new client_s3_1.PutObjectCommand({
         Bucket: process.env.R2_BUCKET_NAME || 'portfolio-images',
         Key: filename,

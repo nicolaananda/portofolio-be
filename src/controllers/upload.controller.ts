@@ -22,19 +22,23 @@ export const upload = multer({
   },
 });
 
-// Configure S3 client for Cloudflare R2
-const s3Client = new S3Client({
-  region: 'auto',
-  endpoint: process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
-  credentials: {
-    accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
-    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
-  },
-  forcePathStyle: true, // Required for R2
-});
+// Configure S3 client for Cloudflare R2 (lazy initialization)
+const getS3Client = () => {
+  return new S3Client({
+    region: 'auto',
+    endpoint: process.env.R2_ENDPOINT || `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+    },
+    forcePathStyle: true, // Required for R2
+  });
+};
 
 // Helper function to upload file to R2
 const uploadToR2 = async (file: Express.Multer.File, filename: string): Promise<string> => {
+  const s3Client = getS3Client();
+  
   const command = new PutObjectCommand({
     Bucket: process.env.R2_BUCKET_NAME || 'portfolio-images',
     Key: filename,
