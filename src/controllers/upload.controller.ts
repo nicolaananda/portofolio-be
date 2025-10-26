@@ -39,7 +39,7 @@ const getS3Client = () => {
 const uploadToR2 = async (file: Express.Multer.File, filename: string): Promise<string> => {
   const s3Client = getS3Client();
   
-  const bucketName = process.env.R2_BUCKET_NAME || 'portfolio';
+  const bucketName = process.env.R2_BUCKET_NAME || 'portofolio';
   const command = new PutObjectCommand({
     Bucket: bucketName,
     Key: filename,

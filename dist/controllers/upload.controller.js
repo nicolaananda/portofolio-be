@@ -36,7 +36,7 @@ const getS3Client = () => {
 };
 const uploadToR2 = async (file, filename) => {
     const s3Client = getS3Client();
-    const bucketName = process.env.R2_BUCKET_NAME || 'portfolio';
+    const bucketName = process.env.R2_BUCKET_NAME || 'portofolio';
     const command = new client_s3_1.PutObjectCommand({
         Bucket: bucketName,
         Key: filename,
