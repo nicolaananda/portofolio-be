@@ -1,0 +1,71 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.uploadImage = exports.upload = void 0;
+const multer_1 = __importDefault(require("multer"));
+const client_s3_1 = require("@aws-sdk/client-s3");
+const uuid_1 = require("uuid");
+const errorHandler_1 = require("../middleware/errorHandler");
+const storage = multer_1.default.memoryStorage();
+exports.upload = (0, multer_1.default)({
+    storage: storage,
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+    fileFilter: (_req, file, cb) => {
+        if (file.mimetype.startsWith('image/')) {
+            cb(null, true);
+        }
+        else {
+            cb(new errorHandler_1.AppError('Only image files are allowed', 400));
+        }
+    },
+});
+const s3Client = new client_s3_1.S3Client({
+    region: 'auto',
+    endpoint: `https://${process.env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+    },
+});
+const uploadToR2 = async (file, filename) => {
+    const command = new client_s3_1.PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME || 'portfolio-images',
+        Key: filename,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+    });
+    await s3Client.send(command);
+    const publicUrl = `${process.env.R2_PUBLIC_URL}/${filename}`;
+    return publicUrl;
+};
+const uploadImage = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                success: false,
+                message: 'No image file provided',
+            });
+        }
+        const fileExtension = req.file.originalname.split('.').pop();
+        const filename = `${(0, uuid_1.v4)()}.${fileExtension}`;
+        const publicUrl = await uploadToR2(req.file, filename);
+        return res.json({
+            success: true,
+            url: publicUrl,
+            message: 'Image uploaded successfully',
+        });
+    }
+    catch (error) {
+        console.error('Upload error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Failed to upload image',
+        });
+    }
+};
+exports.uploadImage = uploadImage;
+//# sourceMappingURL=upload.controller.js.map

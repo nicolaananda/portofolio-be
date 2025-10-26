@@ -10,6 +10,7 @@ import { rateLimiter } from './middleware/rateLimiter';
 import authRoutes from './routes/auth.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import contactRoutes from './routes/contact.routes';
+import uploadRoutes from './routes/upload.routes';
 
 // Load environment variables
 config();
@@ -43,6 +44,7 @@ app.use(rateLimiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Error handling
 app.use(errorHandler);
