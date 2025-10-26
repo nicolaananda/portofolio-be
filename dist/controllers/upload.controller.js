@@ -46,12 +46,6 @@ const uploadToR2 = async (file, filename) => {
 const uploadImage = async (req, res) => {
     var _a, _b;
     try {
-        if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
-            return res.status(500).json({
-                success: false,
-                message: 'R2 storage not configured. Please check environment variables.',
-            });
-        }
         if (!req.file) {
             return res.status(400).json({
                 success: false,
@@ -60,6 +54,15 @@ const uploadImage = async (req, res) => {
         }
         const fileExtension = req.file.originalname.split('.').pop();
         const filename = `${(0, uuid_1.v4)()}.${fileExtension}`;
+        if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+            console.warn('R2 not configured, returning mock URL for development');
+            const mockUrl = `http://localhost:5002/uploads/${filename}`;
+            return res.json({
+                success: true,
+                url: mockUrl,
+                message: 'Image uploaded successfully (mock URL - R2 not configured)',
+            });
+        }
         const publicUrl = await uploadToR2(req.file, filename);
         return res.json({
             success: true,

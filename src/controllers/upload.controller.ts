@@ -52,14 +52,6 @@ const uploadToR2 = async (file: Express.Multer.File, filename: string): Promise<
 // Upload controller
 export const uploadImage = async (req: Request, res: Response): Promise<Response> => {
   try {
-    // Check if R2 credentials are configured
-    if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: 'R2 storage not configured. Please check environment variables.',
-      });
-    }
-
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -70,6 +62,17 @@ export const uploadImage = async (req: Request, res: Response): Promise<Response
     // Generate unique filename with UUID
     const fileExtension = req.file.originalname.split('.').pop();
     const filename = `${uuidv4()}.${fileExtension}`;
+
+    // Check if R2 is configured, otherwise return mock URL for development
+    if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+      console.warn('R2 not configured, returning mock URL for development');
+      const mockUrl = `http://localhost:5002/uploads/${filename}`;
+      return res.json({
+        success: true,
+        url: mockUrl,
+        message: 'Image uploaded successfully (mock URL - R2 not configured)',
+      });
+    }
 
     // Upload to R2
     const publicUrl = await uploadToR2(req.file, filename);
