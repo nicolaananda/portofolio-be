@@ -39,12 +39,15 @@ const getS3Client = () => {
 const uploadToR2 = async (file: Express.Multer.File, filename: string): Promise<string> => {
   const s3Client = getS3Client();
   
+  const bucketName = process.env.R2_BUCKET_NAME || 'portfolio';
   const command = new PutObjectCommand({
-    Bucket: process.env.R2_BUCKET_NAME || 'portfolio-images',
+    Bucket: bucketName,
     Key: filename,
     Body: file.buffer,
     ContentType: file.mimetype,
   });
+  
+  console.log(`Uploading to bucket: ${bucketName}`);
 
   await s3Client.send(command);
 

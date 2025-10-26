@@ -36,12 +36,14 @@ const getS3Client = () => {
 };
 const uploadToR2 = async (file, filename) => {
     const s3Client = getS3Client();
+    const bucketName = process.env.R2_BUCKET_NAME || 'portfolio';
     const command = new client_s3_1.PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME || 'portfolio-images',
+        Bucket: bucketName,
         Key: filename,
         Body: file.buffer,
         ContentType: file.mimetype,
     });
+    console.log(`Uploading to bucket: ${bucketName}`);
     await s3Client.send(command);
     const publicUrl = `${process.env.R2_PUBLIC_URL}/${filename}`;
     return publicUrl;
