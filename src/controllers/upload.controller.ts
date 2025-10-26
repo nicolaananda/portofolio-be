@@ -52,6 +52,14 @@ const uploadToR2 = async (file: Express.Multer.File, filename: string): Promise<
 // Upload controller
 export const uploadImage = async (req: Request, res: Response): Promise<Response> => {
   try {
+    // Check if R2 credentials are configured
+    if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+      return res.status(500).json({
+        success: false,
+        message: 'R2 storage not configured. Please check environment variables.',
+      });
+    }
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
@@ -71,11 +79,21 @@ export const uploadImage = async (req: Request, res: Response): Promise<Response
       url: publicUrl,
       message: 'Image uploaded successfully',
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Upload error:', error);
+    
+    // Provide more specific error messages
+    let errorMessage = 'Failed to upload image';
+    
+    if (error.code === 'EPROTO' || error.message?.includes('SSL')) {
+      errorMessage = 'SSL connection error. Please check R2 configuration.';
+    } else if (error.message?.includes('credentials')) {
+      errorMessage = 'Invalid R2 credentials. Please check environment variables.';
+    }
+    
     return res.status(500).json({
       success: false,
-      message: 'Failed to upload image',
+      message: errorMessage,
     });
   }
 };

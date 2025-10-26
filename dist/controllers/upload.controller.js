@@ -44,7 +44,14 @@ const uploadToR2 = async (file, filename) => {
     return publicUrl;
 };
 const uploadImage = async (req, res) => {
+    var _a, _b;
     try {
+        if (!process.env.R2_ACCOUNT_ID || !process.env.R2_ACCESS_KEY_ID || !process.env.R2_SECRET_ACCESS_KEY) {
+            return res.status(500).json({
+                success: false,
+                message: 'R2 storage not configured. Please check environment variables.',
+            });
+        }
         if (!req.file) {
             return res.status(400).json({
                 success: false,
@@ -62,9 +69,16 @@ const uploadImage = async (req, res) => {
     }
     catch (error) {
         console.error('Upload error:', error);
+        let errorMessage = 'Failed to upload image';
+        if (error.code === 'EPROTO' || ((_a = error.message) === null || _a === void 0 ? void 0 : _a.includes('SSL'))) {
+            errorMessage = 'SSL connection error. Please check R2 configuration.';
+        }
+        else if ((_b = error.message) === null || _b === void 0 ? void 0 : _b.includes('credentials')) {
+            errorMessage = 'Invalid R2 credentials. Please check environment variables.';
+        }
         return res.status(500).json({
             success: false,
-            message: 'Failed to upload image',
+            message: errorMessage,
         });
     }
 };
