@@ -43,13 +43,13 @@ async function migrateSlugs() {
       try {
         if (!portfolio.title || portfolio.title.trim().length === 0) {
           console.log(
-            `⚠️  Skipping portfolio ${portfolio._id}: No title available`
+            `⚠️  Skipping portfolio ${String(portfolio._id)}: No title available`
           );
           errorCount++;
           continue;
         }
 
-        const slug = await generateUniqueSlug(portfolio.title, portfolio._id.toString());
+        const slug = await generateUniqueSlug(portfolio.title, String(portfolio._id));
         portfolio.slug = slug;
         await portfolio.save();
 
@@ -57,7 +57,7 @@ async function migrateSlugs() {
         successCount++;
       } catch (error: any) {
         console.error(
-          `✗ Error updating portfolio "${portfolio.title}" (${portfolio._id}):`,
+          `✗ Error updating portfolio "${portfolio.title}" (${String(portfolio._id)}):`,
           error.message
         );
         errorCount++;
