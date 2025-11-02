@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IPortfolio extends Document {
   title: string;
+  slug: string;
   category: string;
   client: string;
   completionDate: string;
@@ -19,6 +20,13 @@ const portfolioSchema = new Schema<IPortfolio>(
     title: {
       type: String,
       required: [true, 'Please provide a title'],
+      trim: true,
+    },
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
       trim: true,
     },
     category: {
@@ -75,5 +83,8 @@ const portfolioSchema = new Schema<IPortfolio>(
 
 // Index for better search performance
 portfolioSchema.index({ title: 'text', category: 'text', client: 'text' });
+
+// Unique index on slug for fast lookups
+portfolioSchema.index({ slug: 1 }, { unique: true });
 
 export const Portfolio = mongoose.model<IPortfolio>('Portfolio', portfolioSchema);

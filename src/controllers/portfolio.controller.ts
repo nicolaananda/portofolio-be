@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import mongoose from 'mongoose';
 import { Portfolio } from '../models/portfolio.model';
 import { AppError } from '../middleware/errorHandler';
+import { generateUniqueSlug } from '../utils/slugUtils';
 
 interface PortfolioQuery {
   category?: string;
@@ -13,7 +15,22 @@ interface PortfolioQuery {
 // Create new portfolio item
 export const createPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const portfolio = await Portfolio.create(req.body);
+    // Auto-generate slug from title if not provided
+    let slug = req.body.slug;
+    if (!slug && req.body.title) {
+      slug = await generateUniqueSlug(req.body.title);
+    } else if (!slug) {
+      return next(new AppError('Please provide a title for the portfolio', 400));
+    } else {
+      // Validate provided slug is unique
+      slug = await generateUniqueSlug(slug);
+    }
+
+    const portfolio = await Portfolio.create({
+      ...req.body,
+      slug,
+    });
+
     res.status(201).json({
       status: 'success',
       data: portfolio,
@@ -58,12 +75,25 @@ export const getAllPortfolios = async (
   }
 };
 
-// Get single portfolio item
+// Get single portfolio item (supports both slug and _id)
 export const getPortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const portfolio = await Portfolio.findById(req.params.id);
+    const identifier = req.params.id;
+
+    // Check if identifier is a valid MongoDB ObjectId
+    const isObjectId = mongoose.Types.ObjectId.isValid(identifier);
+
+    let portfolio;
+    if (isObjectId) {
+      // Query by _id for backward compatibility
+      portfolio = await Portfolio.findById(identifier);
+    } else {
+      // Query by slug
+      portfolio = await Portfolio.findOne({ slug: identifier });
+    }
+
     if (!portfolio) {
-      return next(new AppError('No portfolio found with that ID', 404));
+      return next(new AppError('No portfolio found with that identifier', 404));
     }
 
     res.status(200).json({
@@ -78,14 +108,27 @@ export const getPortfolio = async (req: Request, res: Response, next: NextFuncti
 // Update portfolio item
 export const updatePortfolio = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const portfolio = await Portfolio.findByIdAndUpdate(req.params.id, req.body, {
+    // Find the portfolio first to check if it exists
+    const existingPortfolio = await Portfolio.findById(req.params.id);
+    if (!existingPortfolio) {
+      return next(new AppError('No portfolio found with that ID', 404));
+    }
+
+    // If title is being updated, auto-generate new slug (unless slug is explicitly provided)
+    const updateData: any = { ...req.body };
+
+    if (req.body.title && !req.body.slug) {
+      // Title changed and no explicit slug provided, regenerate slug
+      updateData.slug = await generateUniqueSlug(req.body.title, req.params.id);
+    } else if (req.body.slug) {
+      // Slug explicitly provided, ensure uniqueness
+      updateData.slug = await generateUniqueSlug(req.body.slug, req.params.id);
+    }
+
+    const portfolio = await Portfolio.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
     });
-
-    if (!portfolio) {
-      return next(new AppError('No portfolio found with that ID', 404));
-    }
 
     res.status(200).json({
       status: 'success',

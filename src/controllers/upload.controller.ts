@@ -13,11 +13,32 @@ export const upload = multer({
     fileSize: 5 * 1024 * 1024, // 5MB limit
   },
   fileFilter: (_req, file, cb) => {
-    // Check file type - only allow images
-    if (file.mimetype.startsWith('image/')) {
+    // Check file type - only allow specific image formats: JPG, PNG, GIF, WebP
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/gif',
+      'image/webp',
+    ];
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    
+    const fileExtension = file.originalname.toLowerCase().slice(
+      file.originalname.lastIndexOf('.')
+    );
+    
+    if (
+      allowedMimeTypes.includes(file.mimetype.toLowerCase()) &&
+      allowedExtensions.includes(fileExtension)
+    ) {
       cb(null, true);
     } else {
-      cb(new AppError('Only image files are allowed', 400));
+      cb(
+        new AppError(
+          'Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed',
+          400
+        )
+      );
     }
   },
 });
