@@ -14,8 +14,16 @@ interface BlogQuery {
   limit?: string;
 }
 
+import { User } from '../models/user.model';
+
 export const createBlog = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    // Get user details for author field
+    const user = await User.findById(req.user?.id);
+    if (!user) {
+      return next(new AppError('User not found', 404));
+    }
+
     let slug = req.body.slug;
     if (!slug && req.body.title) {
       slug = await generateUniqueSlug(req.body.title, null, Blog, BLOG_SLUG_FALLBACK);
@@ -28,6 +36,11 @@ export const createBlog = async (req: Request, res: Response, next: NextFunction
     const blog = await Blog.create({
       ...req.body,
       slug,
+      author: {
+        name: user.name || 'Admin', // Fallback if name is missing
+        avatar: user.avatar,
+        bio: user.bio
+      }
     });
 
     res.status(201).json({
