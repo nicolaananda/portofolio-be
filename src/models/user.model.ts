@@ -4,8 +4,11 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 import crypto from 'crypto';
 
 export interface IUser extends Document {
+  name: string;
   email: string;
   password: string;
+  avatar?: string;
+  bio?: string;
   passwordChangedAt?: Date;
   passwordResetToken?: string;
   passwordResetExpires?: Date;
@@ -25,11 +28,24 @@ export interface IUser extends Document {
 
 const userSchema = new Schema<IUser>(
   {
+    name: {
+      type: String,
+      default: 'Admin',
+      trim: true,
+    },
     email: {
       type: String,
       required: [true, 'Please provide your email'],
       unique: true,
       lowercase: true,
+      trim: true,
+    },
+    avatar: {
+      type: String,
+      default: 'default.jpg',
+    },
+    bio: {
+      type: String,
       trim: true,
     },
     password: {
