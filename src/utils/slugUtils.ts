@@ -1,4 +1,5 @@
 import slugify from 'slugify';
+import { Model } from 'mongoose';
 import { Portfolio } from '../models/portfolio.model';
 
 /**
@@ -23,13 +24,15 @@ export function generateSlug(title: string): string {
  */
 export async function generateUniqueSlug(
   title: string,
-  existingId: string | null = null
+  existingId: string | null = null,
+  model: Model<any> = Portfolio,
+  fallbackBase = 'portfolio-item',
 ): Promise<string> {
   let baseSlug = generateSlug(title);
 
   // If slug is empty after generation, use a default
   if (!baseSlug || baseSlug.trim().length === 0) {
-    baseSlug = 'portfolio-item';
+    baseSlug = fallbackBase;
   }
 
   let slug = baseSlug;
@@ -37,13 +40,12 @@ export async function generateUniqueSlug(
 
   // Check for uniqueness, incrementing counter if needed
   while (true) {
-    const query: { slug: string; _id?: { $ne: string } } = { slug };
-
+    const query: Record<string, unknown> = { slug };
     if (existingId) {
       query._id = { $ne: existingId };
     }
 
-    const existing = await Portfolio.findOne(query);
+    const existing = await model.findOne(query);
 
     if (!existing) {
       break;

@@ -15,11 +15,21 @@ exports.upload = (0, multer_1.default)({
         fileSize: 5 * 1024 * 1024,
     },
     fileFilter: (_req, file, cb) => {
-        if (file.mimetype.startsWith('image/')) {
+        const allowedMimeTypes = [
+            'image/jpeg',
+            'image/jpg',
+            'image/png',
+            'image/gif',
+            'image/webp',
+        ];
+        const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+        const fileExtension = file.originalname.toLowerCase().slice(file.originalname.lastIndexOf('.'));
+        if (allowedMimeTypes.includes(file.mimetype.toLowerCase()) &&
+            allowedExtensions.includes(fileExtension)) {
             cb(null, true);
         }
         else {
-            cb(new errorHandler_1.AppError('Only image files are allowed', 400));
+            cb(new errorHandler_1.AppError('Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed', 400));
         }
     },
 });

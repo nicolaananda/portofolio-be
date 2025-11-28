@@ -10,7 +10,8 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write \"src/**/*.ts\"",
     "test": "jest",
-    "migrate:slugs": "ts-node scripts/migrate-portfolio-slugs.ts"
+    "migrate:slugs": "ts-node scripts/migrate-portfolio-slugs.ts",
+    "seed:blog": "ts-node scripts/seed-blog.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.917.0",

@@ -16,6 +16,7 @@ const auth_routes_1 = __importDefault(require("./routes/auth.routes"));
 const portfolio_routes_1 = __importDefault(require("./routes/portfolio.routes"));
 const contact_routes_1 = __importDefault(require("./routes/contact.routes"));
 const upload_routes_1 = __importDefault(require("./routes/upload.routes"));
+const blog_routes_1 = __importDefault(require("./routes/blog.routes"));
 (0, dotenv_1.config)();
 const app = (0, express_1.default)();
 app.use((0, helmet_1.default)({
@@ -41,6 +42,7 @@ app.use('/api/auth', auth_routes_1.default);
 app.use('/api/portfolio', portfolio_routes_1.default);
 app.use('/api/contact', contact_routes_1.default);
 app.use('/api/upload', upload_routes_1.default);
+app.use('/api/blog', blog_routes_1.default);
 app.use(errorHandler_1.errorHandler);
 mongoose_1.default
     .connect(process.env.MONGODB_URI || '')

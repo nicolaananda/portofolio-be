@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.routes';
 import portfolioRoutes from './routes/portfolio.routes';
 import contactRoutes from './routes/contact.routes';
 import uploadRoutes from './routes/upload.routes';
+import blogRoutes from './routes/blog.routes';
 
 // Load environment variables
 config();
@@ -45,6 +46,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/blog', blogRoutes);
 
 // Error handling
 app.use(errorHandler);

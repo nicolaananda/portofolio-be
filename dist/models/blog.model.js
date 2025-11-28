@@ -33,9 +33,24 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Portfolio = void 0;
+exports.Blog = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const portfolioSchema = new mongoose_1.Schema({
+const authorSchema = new mongoose_1.Schema({
+    name: {
+        type: String,
+        required: [true, 'Please provide the author name'],
+        trim: true,
+    },
+    avatar: {
+        type: String,
+        trim: true,
+    },
+    bio: {
+        type: String,
+        trim: true,
+    },
+}, { _id: false });
+const blogSchema = new mongoose_1.Schema({
     title: {
         type: String,
         required: [true, 'Please provide a title'],
@@ -48,56 +63,40 @@ const portfolioSchema = new mongoose_1.Schema({
         lowercase: true,
         trim: true,
     },
+    excerpt: {
+        type: String,
+        required: [true, 'Please provide an excerpt'],
+        trim: true,
+    },
+    content: {
+        type: String,
+        required: [true, 'Please provide the content'],
+    },
+    coverImage: {
+        type: String,
+        trim: true,
+    },
     category: {
         type: String,
         required: [true, 'Please provide a category'],
         trim: true,
     },
-    client: {
-        type: String,
-        required: [true, 'Please provide a client name'],
-        trim: true,
+    featured: {
+        type: Boolean,
+        default: false,
     },
-    completionDate: {
-        type: String,
-        required: [true, 'Please provide a completion date'],
-    },
-    technologies: [
-        {
-            type: String,
-            required: [true, 'Please provide at least one technology'],
-        },
-    ],
-    description: {
-        type: String,
-        required: [true, 'Please provide a description'],
-    },
-    challenge: {
-        type: String,
-        required: [true, 'Please provide a challenge description'],
-    },
-    solution: {
-        type: String,
-        required: [true, 'Please provide a solution description'],
-    },
-    imageUrls: [
-        {
-            type: String,
-            required: [true, 'Please provide at least one image URL'],
-        },
-    ],
-    liveUrl: {
+    readTime: {
         type: String,
         trim: true,
     },
-    githubUrl: {
-        type: String,
-        trim: true,
+    author: {
+        type: authorSchema,
+        required: [true, 'Please provide author information'],
     },
 }, {
     timestamps: true,
 });
-portfolioSchema.index({ title: 'text', category: 'text', client: 'text' });
-portfolioSchema.index({ slug: 1 }, { unique: true });
-exports.Portfolio = mongoose_1.default.model('Portfolio', portfolioSchema);
-//# sourceMappingURL=portfolio.model.js.map
+blogSchema.index({ slug: 1 }, { unique: true });
+blogSchema.index({ title: 'text', excerpt: 'text', content: 'text', category: 'text' });
+exports.Blog = mongoose_1.default.model('Blog', blogSchema);
+//# sourceMappingURL=blog.model.js.map
