@@ -97,6 +97,7 @@ const blogSchema = new mongoose_1.Schema({
     timestamps: true,
 });
 blogSchema.index({ slug: 1 }, { unique: true });
-blogSchema.index({ title: 'text', excerpt: 'text', content: 'text', category: 'text' });
+blogSchema.index({ category: 1, featured: -1, createdAt: -1 });
+blogSchema.index({ createdAt: -1 });
 exports.Blog = mongoose_1.default.model('Blog', blogSchema);
 //# sourceMappingURL=blog.model.js.map

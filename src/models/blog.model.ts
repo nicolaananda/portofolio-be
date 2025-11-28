@@ -90,7 +90,9 @@ const blogSchema = new Schema<IBlog>(
 );
 
 blogSchema.index({ slug: 1 }, { unique: true });
-blogSchema.index({ title: 'text', excerpt: 'text', content: 'text', category: 'text' });
+// Compound indexes for better query performance
+blogSchema.index({ category: 1, featured: -1, createdAt: -1 });
+blogSchema.index({ createdAt: -1 });
 
 export const Blog = mongoose.model<IBlog>('Blog', blogSchema);
 
