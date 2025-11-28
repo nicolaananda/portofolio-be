@@ -38,7 +38,7 @@ export const createBlog = async (req: Request, res: Response, next: NextFunction
       slug,
       author: {
         name: 'Nicola Ananda',
-        avatar: user.avatar || 'https://ui-avatars.com/api/?name=Nicola+Ananda',
+        avatar: (user.avatar && user.avatar !== 'default.jpg') ? user.avatar : 'https://ui-avatars.com/api/?name=Nicola+Ananda',
         bio: user.bio || 'Full Stack Developer'
       }
     });
