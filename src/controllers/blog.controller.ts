@@ -37,9 +37,9 @@ export const createBlog = async (req: Request, res: Response, next: NextFunction
       ...req.body,
       slug,
       author: {
-        name: user.name || 'Admin', // Fallback if name is missing
-        avatar: user.avatar,
-        bio: user.bio
+        name: 'Nicola Ananda',
+        avatar: user.avatar || 'https://ui-avatars.com/api/?name=Nicola+Ananda',
+        bio: user.bio || 'Full Stack Developer'
       }
     });
 
