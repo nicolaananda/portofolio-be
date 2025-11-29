@@ -6,16 +6,16 @@ import { Portfolio } from '../models/portfolio.model';
 const BASE_URL = 'https://nicola.id';
 
 export const generateSitemap = async () => {
-    try {
-        console.log('Generating sitemap...');
+  try {
+    console.log('Generating sitemap...');
 
-        // Fetch all blogs and portfolios
-        const blogs = await Blog.find({}).select('slug updatedAt');
-        const portfolios = await Portfolio.find({}).select('slug updatedAt');
+    // Fetch all blogs and portfolios
+    const blogs = await Blog.find({}).select('slug updatedAt');
+    const portfolios = await Portfolio.find({}).select('slug updatedAt');
 
-        const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split('T')[0];
 
-        let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+    let sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   
@@ -64,49 +64,53 @@ export const generateSitemap = async () => {
   </url>
 `;
 
-        // Add Portfolio Items
-        portfolios.forEach((portfolio) => {
-            const lastMod = new Date(portfolio.updatedAt as any).toISOString().split('T')[0];
-            sitemap += `
+    // Add Portfolio Items
+    portfolios.forEach((portfolio) => {
+      const lastMod = new Date(portfolio.updatedAt as any).toISOString().split('T')[0];
+      sitemap += `
   <url>
     <loc>${BASE_URL}/portfolio/${portfolio.slug}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>`;
-        });
+    });
 
-        // Add Blog Posts
-        blogs.forEach((blog) => {
-            const lastMod = new Date(blog.updatedAt as any).toISOString().split('T')[0];
-            sitemap += `
+    // Add Blog Posts
+    blogs.forEach((blog) => {
+      const lastMod = new Date(blog.updatedAt as any).toISOString().split('T')[0];
+      sitemap += `
   <url>
     <loc>${BASE_URL}/blog/${blog.slug}</loc>
     <lastmod>${lastMod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>`;
-        });
+    });
 
-        sitemap += `
+    sitemap += `
 </urlset>`;
 
-        // Define paths
-        // process.cwd() is expected to be portofolio-be root
-        const publicPath = path.join(process.cwd(), '../public/sitemap.xml');
-        const distPath = path.join(process.cwd(), '../dist/sitemap.xml');
+    // Define paths
+    // process.cwd() is expected to be portofolio-be root
+    const publicPath = path.join(process.cwd(), '../public/sitemap.xml');
+    const distPath = path.join(process.cwd(), '../dist/sitemap.xml');
 
-        // Write to public folder
-        fs.writeFileSync(publicPath, sitemap);
-        console.log(`Sitemap written to ${publicPath}`);
-
-        // Write to dist folder if it exists
-        if (fs.existsSync(path.dirname(distPath))) {
-            fs.writeFileSync(distPath, sitemap);
-            console.log(`Sitemap written to ${distPath}`);
-        }
-
-    } catch (error) {
-        console.error('Error generating sitemap:', error);
+    // Write to public folder if it exists
+    if (fs.existsSync(path.dirname(publicPath))) {
+      fs.writeFileSync(publicPath, sitemap);
+      console.log(`Sitemap written to ${publicPath}`);
+    } else {
+      console.log(`Skipping public sitemap generation: ${path.dirname(publicPath)} does not exist`);
     }
+
+    // Write to dist folder if it exists
+    if (fs.existsSync(path.dirname(distPath))) {
+      fs.writeFileSync(distPath, sitemap);
+      console.log(`Sitemap written to ${distPath}`);
+    }
+
+  } catch (error) {
+    console.error('Error generating sitemap:', error);
+  }
 };
