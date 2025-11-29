@@ -87,8 +87,13 @@ const generateSitemap = async () => {
 </urlset>`;
         const publicPath = path_1.default.join(process.cwd(), '../public/sitemap.xml');
         const distPath = path_1.default.join(process.cwd(), '../dist/sitemap.xml');
-        fs_1.default.writeFileSync(publicPath, sitemap);
-        console.log(`Sitemap written to ${publicPath}`);
+        if (fs_1.default.existsSync(path_1.default.dirname(publicPath))) {
+            fs_1.default.writeFileSync(publicPath, sitemap);
+            console.log(`Sitemap written to ${publicPath}`);
+        }
+        else {
+            console.log(`Skipping public sitemap generation: ${path_1.default.dirname(publicPath)} does not exist`);
+        }
         if (fs_1.default.existsSync(path_1.default.dirname(distPath))) {
             fs_1.default.writeFileSync(distPath, sitemap);
             console.log(`Sitemap written to ${distPath}`);

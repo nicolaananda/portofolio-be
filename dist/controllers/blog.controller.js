@@ -9,7 +9,6 @@ const blog_model_1 = require("../models/blog.model");
 const errorHandler_1 = require("../middleware/errorHandler");
 const slugUtils_1 = require("../utils/slugUtils");
 const sitemapUtils_1 = require("../utils/sitemapUtils");
-const seoUtils_1 = require("../utils/seoUtils");
 const BLOG_SLUG_FALLBACK = 'blog-post';
 const user_model_1 = require("../models/user.model");
 const createBlog = async (req, res, next) => {
@@ -39,7 +38,6 @@ const createBlog = async (req, res, next) => {
             }
         });
         (0, sitemapUtils_1.generateSitemap)();
-        await (0, seoUtils_1.updateBlogPostSEO)(blog);
         res.status(201).json({
             status: 'success',
             data: blog,
@@ -124,8 +122,6 @@ const updateBlog = async (req, res, next) => {
             runValidators: true,
         });
         (0, sitemapUtils_1.generateSitemap)();
-        if (blog)
-            await (0, seoUtils_1.updateBlogPostSEO)(blog);
         res.status(200).json({
             status: 'success',
             data: blog,
@@ -143,8 +139,6 @@ const deleteBlog = async (req, res, next) => {
             return next(new errorHandler_1.AppError('No blog found with that ID', 404));
         }
         (0, sitemapUtils_1.generateSitemap)();
-        if (blog)
-            (0, seoUtils_1.deleteBlogPostSEO)(blog.slug);
         res.status(200).json({
             status: 'success',
             message: 'Post deleted',

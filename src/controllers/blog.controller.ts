@@ -4,7 +4,6 @@ import { Blog, IBlog } from '../models/blog.model';
 import { AppError } from '../middleware/errorHandler';
 import { generateUniqueSlug } from '../utils/slugUtils';
 import { generateSitemap } from '../utils/sitemapUtils';
-import { updateBlogPostSEO, deleteBlogPostSEO } from '../utils/seoUtils';
 
 const BLOG_SLUG_FALLBACK = 'blog-post';
 
@@ -49,8 +48,6 @@ export const createBlog = async (req: Request, res: Response, next: NextFunction
 
     // Regenerate sitemap
     generateSitemap();
-    // Generate SEO HTML
-    await updateBlogPostSEO(blog);
 
     res.status(201).json({
       status: 'success',
@@ -153,8 +150,6 @@ export const updateBlog = async (req: Request, res: Response, next: NextFunction
 
     // Regenerate sitemap
     generateSitemap();
-    // Generate SEO HTML
-    if (blog) await updateBlogPostSEO(blog);
 
     res.status(200).json({
       status: 'success',
@@ -177,8 +172,6 @@ export const deleteBlog = async (req: Request, res: Response, next: NextFunction
 
     // Regenerate sitemap
     generateSitemap();
-    // Delete SEO HTML
-    if (blog) deleteBlogPostSEO(blog.slug);
 
     res.status(200).json({
       status: 'success',

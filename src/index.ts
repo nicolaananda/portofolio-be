@@ -12,6 +12,7 @@ import portfolioRoutes from './routes/portfolio.routes';
 import contactRoutes from './routes/contact.routes';
 import uploadRoutes from './routes/upload.routes';
 import blogRoutes from './routes/blog.routes';
+import seoRoutes from './routes/seo.routes';
 
 // Load environment variables
 config();
@@ -26,8 +27,8 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://nicola.id', 'https://www.nicola.id'] 
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://nicola.id', 'https://www.nicola.id']
     : ['http://localhost:8080', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:5173', 'https://nicola.id', 'https://www.nicola.id'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -47,6 +48,7 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/blog', blogRoutes);
+app.use('/api/seo', seoRoutes);
 
 // Error handling
 app.use(errorHandler);
