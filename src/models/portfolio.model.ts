@@ -13,6 +13,8 @@ export interface IPortfolio extends Document {
   imageUrls: string[];
   liveUrl?: string;
   githubUrl?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const portfolioSchema = new Schema<IPortfolio>(

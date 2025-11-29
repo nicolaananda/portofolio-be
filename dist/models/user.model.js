@@ -42,11 +42,24 @@ const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const userSchema = new mongoose_1.Schema({
+    name: {
+        type: String,
+        default: 'Admin',
+        trim: true,
+    },
     email: {
         type: String,
         required: [true, 'Please provide your email'],
         unique: true,
         lowercase: true,
+        trim: true,
+    },
+    avatar: {
+        type: String,
+        default: 'default.jpg',
+    },
+    bio: {
+        type: String,
         trim: true,
     },
     password: {

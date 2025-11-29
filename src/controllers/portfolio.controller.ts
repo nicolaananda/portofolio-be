@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { Portfolio } from '../models/portfolio.model';
 import { AppError } from '../middleware/errorHandler';
 import { generateUniqueSlug } from '../utils/slugUtils';
+import { generateSitemap } from '../utils/sitemapUtils';
 
 interface PortfolioQuery {
   category?: string;
@@ -30,6 +31,9 @@ export const createPortfolio = async (req: Request, res: Response, next: NextFun
       ...req.body,
       slug,
     });
+
+    // Regenerate sitemap
+    generateSitemap();
 
     res.status(201).json({
       status: 'success',
@@ -130,6 +134,9 @@ export const updatePortfolio = async (req: Request, res: Response, next: NextFun
       runValidators: true,
     });
 
+    // Regenerate sitemap
+    generateSitemap();
+
     res.status(200).json({
       status: 'success',
       data: portfolio,
@@ -147,6 +154,9 @@ export const deletePortfolio = async (req: Request, res: Response, next: NextFun
     if (!portfolio) {
       return next(new AppError('No portfolio found with that ID', 404));
     }
+
+    // Regenerate sitemap
+    generateSitemap();
 
     res.status(204).json({
       status: 'success',

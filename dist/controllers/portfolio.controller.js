@@ -8,6 +8,7 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const portfolio_model_1 = require("../models/portfolio.model");
 const errorHandler_1 = require("../middleware/errorHandler");
 const slugUtils_1 = require("../utils/slugUtils");
+const sitemapUtils_1 = require("../utils/sitemapUtils");
 const createPortfolio = async (req, res, next) => {
     try {
         let slug = req.body.slug;
@@ -24,6 +25,7 @@ const createPortfolio = async (req, res, next) => {
             ...req.body,
             slug,
         });
+        (0, sitemapUtils_1.generateSitemap)();
         res.status(201).json({
             status: 'success',
             data: portfolio,
@@ -104,6 +106,7 @@ const updatePortfolio = async (req, res, next) => {
             new: true,
             runValidators: true,
         });
+        (0, sitemapUtils_1.generateSitemap)();
         res.status(200).json({
             status: 'success',
             data: portfolio,
@@ -120,6 +123,7 @@ const deletePortfolio = async (req, res, next) => {
         if (!portfolio) {
             return next(new errorHandler_1.AppError('No portfolio found with that ID', 404));
         }
+        (0, sitemapUtils_1.generateSitemap)();
         res.status(204).json({
             status: 'success',
             data: null,
